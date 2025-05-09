@@ -12,8 +12,6 @@ namespace ParticleSystem
 
 
         GravityPoint point1; // добавил поле под первую точку
-        GravityPoint point2; // добавил поле под вторую точку
-
 
         public Form1()
         {
@@ -42,15 +40,11 @@ namespace ParticleSystem
                 X = picDisplay.Width / 2 + 100,
                 Y = picDisplay.Height / 2,
             };
-            point2 = new GravityPoint
-            {
-                X = picDisplay.Width / 2 - 100,
-                Y = picDisplay.Height / 2,
-            };
+
 
             // привязываем поля к эмиттеру
             emitter.impactPoints.Add(point1);
-            emitter.impactPoints.Add(point2);
+
         }
 
         // ну и обработка тика таймера, тут просто декомпозицию выполнили
@@ -60,7 +54,7 @@ namespace ParticleSystem
 
             using (var g = Graphics.FromImage(picDisplay.Image))
             {
-                g.Clear(Color.Black);
+                g.Clear(Color.White);
                 emitter.Render(g); // а тут теперь рендерим через эмиттер
             }
 
@@ -68,32 +62,53 @@ namespace ParticleSystem
         }
         private void picDisplay_MouseMove(object sender, MouseEventArgs e)
         {
-            // это не трогаем
-            foreach (var emitter in emitters)
-            {
-                emitter.MousePositionX = e.X;
-                emitter.MousePositionY = e.Y;
-            }
-
-            // а тут передаем положение мыши, в положение гравитона
-            point2.X = e.X;
-            point2.Y = e.Y;
+            // Перемещаем гравитон к позиции мыши
+            point1.X = e.X;
+            point1.Y = e.Y;
         }
 
         private void tbDirection_Scroll_1(object sender, EventArgs e)
         {
             emitter.Direction = tbDirection.Value;
-            lblDirection.Text = $"{tbDirection.Value}°"; // добавил вывод значения
+            lblDirection.Text = $"Направление: {tbDirection.Value}°"; // добавил вывод значения
         }
 
         private void tbGraviton_Scroll(object sender, EventArgs e)
         {
             point1.Power = tbGraviton.Value;
+            label2.Text = $"Размер гравитона: {tbGraviton.Value}";
         }
 
-        private void tbGraviton1_Scroll(object sender, EventArgs e)
+        private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            point2.Power = tbGraviton1.Value;
+            emitter.Direction = trackBar1.Value;
+            emitter.Spreading = trackBar1.Value;
+            label3.Text = $"Распределение: {trackBar1.Value}°";
+        }
+
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            emitter.SpeedMin = trackBar2.Value;
+            emitter.SpeedMax = trackBar2.Value;
+            label4.Text = $"Скорость: {trackBar2.Value}";
+        }
+
+        private void trackBar3_Scroll(object sender, EventArgs e)
+        {
+            emitter.ParticlesPerTick = trackBar3.Value;
+            label5.Text = $"Частиц за тик: {trackBar3.Value}";
+        }
+
+        private void trackBar4_Scroll(object sender, EventArgs e)
+        {
+            // Частота таймера в миллисекундах (например, 16 = 60 FPS)
+            float timerFrequency = timer1.Interval / 1000f; // Переводим в секунды
+
+            // Вычисляем минимальное и максимальное время жизни в тиках
+            emitter.LifeMin = (int)(trackBar4.Value / timerFrequency);
+            emitter.LifeMax = (int)(trackBar4.Value / timerFrequency);
+
+            label6.Text = $"Жизнь частиц: {trackBar4.Value} сек";
         }
     }
 }
