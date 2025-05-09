@@ -28,33 +28,42 @@
         /// </summary>
         private void InitializeComponent()
         {
-            pictureBox1 = new PictureBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            components = new System.ComponentModel.Container();
+            picDisplay = new PictureBox();
+            timer1 = new System.Windows.Forms.Timer(components);
+            ((System.ComponentModel.ISupportInitialize)picDisplay).BeginInit();
             SuspendLayout();
             // 
-            // pictureBox1
+            // picDisplay
             // 
-            pictureBox1.Location = new Point(12, 12);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1030, 419);
-            pictureBox1.TabIndex = 0;
-            pictureBox1.TabStop = false;
+            picDisplay.Location = new Point(12, 12);
+            picDisplay.Name = "picDisplay";
+            picDisplay.Size = new Size(1030, 419);
+            picDisplay.TabIndex = 0;
+            picDisplay.TabStop = false;
+            picDisplay.MouseMove += picDisplay_MouseMove;
+            // 
+            // timer1
+            // 
+            timer1.Enabled = true;
+            timer1.Interval = 40;
+            timer1.Tick += timer1_Tick;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1054, 553);
-            Controls.Add(pictureBox1);
+            Controls.Add(picDisplay);
             Name = "Form1";
             Text = "Form1";
-            Load += Form1_Load;
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picDisplay).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private PictureBox pictureBox1;
+        private PictureBox picDisplay;
+        private System.Windows.Forms.Timer timer1;
     }
 }
