@@ -7,39 +7,50 @@ namespace ParticleSystem
     {
         // собственно список, пока пустой
         List<Particle> particles = new List<Particle>();
+        List<Emitter> emitters = new List<Emitter>();
         Emitter emitter; // тут убрали явное создание
+
+
+        GravityPoint point1; // добавил поле под первую точку
+        GravityPoint point2; // добавил поле под вторую точку
+
 
         public Form1()
         {
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
-            // а тут теперь вручную создаем
-            emitter = new TopEmitter
+            this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
             {
-                Width = picDisplay.Width,
-                GravitationY = 0.25f
+                Direction = 0,
+                Spreading = 10,
+                SpeedMin = 10,
+                SpeedMax = 10,
+                ColorFrom = Color.Gold,
+                ColorTo = Color.FromArgb(0, Color.Red),
+                ParticlesPerTick = 10,
+                X = picDisplay.Width / 2,
+                Y = picDisplay.Height / 2,
             };
 
-            /* пока отключим точки
-            emitter.impactPoints.Add(new GravityPoint
-            {
-                X = (float)(picDisplay.Width * 0.25),
-                Y = picDisplay.Height / 2
-            });
+            emitters.Add(this.emitter);
+            // до сюда НЕ ТРОГАЕМ
 
-            emitter.impactPoints.Add(new AntiGravityPoint
+            // привязываем гравитоны к полям
+            point1 = new GravityPoint
             {
-                X = picDisplay.Width / 2,
-                Y = picDisplay.Height / 2
-            });
+                X = picDisplay.Width / 2 + 100,
+                Y = picDisplay.Height / 2,
+            };
+            point2 = new GravityPoint
+            {
+                X = picDisplay.Width / 2 - 100,
+                Y = picDisplay.Height / 2,
+            };
 
-            emitter.impactPoints.Add(new GravityPoint
-            {
-                X = (float)(picDisplay.Width * 0.75),
-                Y = picDisplay.Height / 2
-            });
-            */
+            // привязываем поля к эмиттеру
+            emitter.impactPoints.Add(point1);
+            emitter.impactPoints.Add(point2);
         }
 
         // ну и обработка тика таймера, тут просто декомпозицию выполнили
@@ -57,9 +68,32 @@ namespace ParticleSystem
         }
         private void picDisplay_MouseMove(object sender, MouseEventArgs e)
         {
-            // а тут в эмиттер передаем положение мыфки
-            emitter.MousePositionX = e.X;
-            emitter.MousePositionY = e.Y;
+            // это не трогаем
+            foreach (var emitter in emitters)
+            {
+                emitter.MousePositionX = e.X;
+                emitter.MousePositionY = e.Y;
+            }
+
+            // а тут передаем положение мыши, в положение гравитона
+            point2.X = e.X;
+            point2.Y = e.Y;
+        }
+
+        private void tbDirection_Scroll_1(object sender, EventArgs e)
+        {
+            emitter.Direction = tbDirection.Value;
+            lblDirection.Text = $"{tbDirection.Value}°"; // добавил вывод значения
+        }
+
+        private void tbGraviton_Scroll(object sender, EventArgs e)
+        {
+            point1.Power = tbGraviton.Value;
+        }
+
+        private void tbGraviton1_Scroll(object sender, EventArgs e)
+        {
+            point2.Power = tbGraviton1.Value;
         }
     }
 }
