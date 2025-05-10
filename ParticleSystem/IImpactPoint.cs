@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ParticleSystem.Particle;
 
 namespace ParticleSystem
 {
@@ -30,18 +31,29 @@ namespace ParticleSystem
 
     public class GravityPoint : IImpactPoint
     {
-        public int Power = 100; // сила притяжения
+        public int Power = 100;  // радиус радара (сила притяжения)
+        public int CountInZone = 0;  // количество частиц в зоне
 
-        // а сюда по сути скопировали с минимальными правками то что было в UpdateState
         public override void ImpactParticle(Particle particle)
         {
             float gX = X - particle.X;
             float gY = Y - particle.Y;
 
-            double r = Math.Sqrt(gX * gX + gY * gY); // считаем расстояние от центра точки до центра частицы
-            if (r + particle.Radius < Power / 2) // если частица оказалось внутри окружности
+            double r = Math.Sqrt(gX * gX + gY * gY);  // расстояние до частицы
+
+            // Подсчет частиц в зоне
+            if (r + particle.Radius < Power / 2)
             {
-                // то притягиваем ее
+                CountInZone++;  // увеличиваем счетчик
+
+                // Подсветка частицы зеленым цветом
+                if (particle is ParticleColorful colorfulParticle)
+                {
+                    colorfulParticle.FromColor = Color.Green;
+                    colorfulParticle.ToColor = Color.Green;
+                }
+
+                // Притяжение частицы
                 float r2 = (float)Math.Max(100, gX * gX + gY * gY);
                 particle.SpeedX += gX * Power / r2;
                 particle.SpeedY += gY * Power / r2;
@@ -50,46 +62,49 @@ namespace ParticleSystem
 
         public override void Render(Graphics g)
         {
-            // буду рисовать окружность с диаметром равным Power
-            g.DrawEllipse(
-                   new Pen(Color.Red),
-                   X - Power / 2,
-                   Y - Power / 2,
-                   Power,
-                   Power
-               );
+            // Сбрасываем счетчик перед перерисовкой
+            CountInZone = 0;
 
-            var stringFormat = new StringFormat();
-            stringFormat.Alignment = StringAlignment.Center;
-            stringFormat.LineAlignment = StringAlignment.Center;
-
-            // обязательно выносим текст и шрифт в переменные
-            var text = $"Я гравитон\nc силой {Power}";
-            var font = new Font("Verdana", 10);
-
-            // вызываем MeasureString, чтобы померить размеры текста
-            var size = g.MeasureString(text, font);
-
-            // рисуем подложнку под текст
-            g.FillRectangle(
-                new SolidBrush(Color.Red),
-                X - size.Width / 2, // так как я выравнивал текст по центру то подложка должна быть центрирована относительно X,Y
-                Y - size.Height / 2,
-                size.Width,
-                size.Height
+            // Используем прозрачный цвет для заливки
+            g.FillEllipse(
+                new SolidBrush(Color.FromArgb(0, 255, 255, 255)), // прозрачный белый
+                X - Power / 2,
+                Y - Power / 2,
+                Power,
+                Power
             );
 
-            // ну и текст рисую уже на базе переменных
+            // Рисуем обводку круга с цветом, например, красным
+            g.DrawEllipse(
+                new Pen(Color.Red, 2),
+                X - Power / 2,
+                Y - Power / 2,
+                Power,
+                Power
+            );
+
+            var stringFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+
+            // Текст с количеством частиц
+            var text = $"Частиц: {CountInZone}";
+            var font = new Font("Verdana", 10);
+
+            // Рисуем текст в центре
             g.DrawString(
                 text,
                 font,
-                new SolidBrush(Color.White),
+                Brushes.Black,
                 X,
                 Y,
                 stringFormat
             );
         }
     }
+
 
 
     public class AntiGravityPoint : IImpactPoint
@@ -106,6 +121,73 @@ namespace ParticleSystem
             particle.SpeedX -= gX * Power / r2; // тут минусики вместо плюсов
             particle.SpeedY -= gY * Power / r2; // и тут
         }
+    }
+
+    public class ColorPoint : IImpactPoint
+    {
+        public int Radius = 20;
+        public Color Color;
+
+        public override void ImpactParticle(Particle particle)
+        {
+            float dx = X - particle.X;
+            float dy = Y - particle.Y;
+            double distance = Math.Sqrt(dx * dx + dy * dy);
+
+            if (distance <= Radius)
+            {
+                if (particle is ParticleColorful colorfulParticle)
+                {
+                    // Временно перекрашиваем частицу в цвет, но сохраняем оригинальный серый цвет
+                    colorfulParticle.FromColor = Color;
+                    colorfulParticle.ToColor = Color;
+                }
+            }
+        }
+
+
+        public override void Render(Graphics g)
+        {
+            using (var pen = new Pen(Color, 2)) // рисуем только контур
+            {
+                g.DrawEllipse(pen, X - Radius, Y - Radius, Radius * 2, Radius * 2);
+            }
+        }
+    }
+
+    public class ParticleCounterPoint : IImpactPoint
+    {
+        public int Counter = 0;
+
+        public override void ImpactParticle(Particle particle)
+        {
+            float dx = X - particle.X;
+            float dy = Y - particle.Y;
+            double distance = Math.Sqrt(dx * dx + dy * dy);
+
+            if (distance <= 10) // радиус захвата, можно менять
+            {
+                Counter++;
+                particle.Life = 0; // уничтожаем частицу
+            }
+        }
+
+        public override void Render(Graphics g)
+        {
+            // Увеличенный размер точки-счетчика (радиус 30)
+            int radius = 60;
+
+            // Рисуем белый внутренний круг
+            g.FillEllipse(Brushes.White, X - radius / 2, Y - radius / 2, radius, radius);
+
+            // Рисуем красную обводку
+            g.DrawEllipse(new Pen(Color.Red, 3), X - radius / 2, Y - radius / 2, radius, radius);
+
+            // Рисуем текст с количеством уничтоженных частиц
+            g.DrawString($"Счет: {Counter}", new Font("Verdana", 10), Brushes.Black, X + radius / 2 + 5, Y - 10);
+        }
+
+
     }
 
 

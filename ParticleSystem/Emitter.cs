@@ -30,19 +30,24 @@ namespace ParticleSystem
 
         public int ParticlesPerTick = 1; // добавил новое поле
 
-        public Color ColorFrom = Color.White; // начальный цвет частицы
-        public Color ColorTo = Color.FromArgb(0, Color.Black); // конечный цвет частиц
+        public Color ColorFrom = Color.Gray; // начальный цвет частицы
+        public Color ColorTo = Color.FromArgb(0, Color.Gray); // конечный цвет частиц
 
+        public Color FromColor { get; set; } // Начальный цвет
+    public Color ToColor { get; set; }   // Конечный цвет
+    public Color CurrentColor { get; set; } // Текущий цвет
+    public bool IsColored { get; set; }   // Флаг, показывает, изменяется ли цвет
 
         /* добавил метод */
         public virtual Particle CreateParticle()
         {
             var particle = new ParticleColorful();
-            particle.FromColor = ColorFrom;
-            particle.ToColor = ColorTo;
-
+            particle.FromColor = Color.Gray;  // Начальный цвет
+            particle.ToColor = Color.Gray;    // Конечный цвет
             return particle;
         }
+
+
 
         public void UpdateState()
         {
@@ -133,17 +138,32 @@ namespace ParticleSystem
         {
             public int Width; // длина экрана
 
-            public override void ResetParticle(Particle particle)
+            public virtual void ResetParticle(Particle particle)
             {
-                base.ResetParticle(particle); // вызываем базовый сброс частицы, там жизнь переопределяется и все такое
+                particle.Life = Particle.rand.Next(LifeMin, LifeMax);
+                particle.X = X;
+                particle.Y = Y;
 
-                // а теперь тут уже подкручиваем параметры движения
-                particle.X = Particle.rand.Next(Width); // позиция X -- произвольная точка от 0 до Width
-                particle.Y = 0;  // ноль -- это верх экрана 
+                var direction = Direction
+                    + (double)Particle.rand.Next(Spreading)
+                    - Spreading / 2;
 
-                particle.SpeedY = 1; // падаем вниз по умолчанию
-                particle.SpeedX = Particle.rand.Next(-2, 2); // разброс влево и вправа у частиц 
+                var speed = Particle.rand.Next(SpeedMin, SpeedMax);
+
+                particle.SpeedX = (float)(Math.Cos(direction / 180 * Math.PI) * speed);
+                particle.SpeedY = -(float)(Math.Sin(direction / 180 * Math.PI) * speed);
+
+                particle.Radius = Particle.rand.Next(RadiusMin, RadiusMax);
+
+                // Сбрасываем цвет на серый всегда при сбросе
+                if (particle is ParticleColorful colorfulParticle)
+                {
+                    colorfulParticle.FromColor = Color.Gray;
+                    colorfulParticle.ToColor = Color.Gray;
+                }
             }
+
+
         }
 
     }

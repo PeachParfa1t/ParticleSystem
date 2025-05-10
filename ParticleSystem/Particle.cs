@@ -20,6 +20,7 @@ namespace ParticleSystem
 
         public static Random rand = new Random();
 
+
         public Particle()
         {
             // генерируем произвольное направление и скорость
@@ -54,6 +55,7 @@ namespace ParticleSystem
             b.Dispose();
         }
 
+
         // новый класс для цветных частиц
         public class ParticleColorful : Particle
         {
@@ -75,16 +77,15 @@ namespace ParticleSystem
             // ну и отрисовку перепишем
             public override void Draw(Graphics g)
             {
-                float k = Math.Min(1f, Life / 100);
-
-                // так как k уменьшается от 1 до 0, то порядок цветов обратный
-                var color = MixColor(ToColor, FromColor, k);
+                // Рисуем частицу с текущим цветом (серым)
+                var color = FromColor;
                 var b = new SolidBrush(color);
 
                 g.FillEllipse(b, X - Radius, Y - Radius, Radius * 2, Radius * 2);
-
                 b.Dispose();
             }
+
+
         }
     }
 }

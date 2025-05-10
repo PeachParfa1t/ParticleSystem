@@ -9,6 +9,7 @@ namespace ParticleSystem
         List<Particle> particles = new List<Particle>();
         List<Emitter> emitters = new List<Emitter>();
         Emitter emitter; // тут убрали явное создание
+        List<ParticleCounterPoint> counters = new List<ParticleCounterPoint>();
 
 
         GravityPoint point1; // добавил поле под первую точку
@@ -18,7 +19,8 @@ namespace ParticleSystem
             InitializeComponent();
             picDisplay.Image = new Bitmap(picDisplay.Width, picDisplay.Height);
 
-            this.emitter = new Emitter // создаю эмиттер и привязываю его к полю emitter
+            // Создаем эмиттер
+            this.emitter = new Emitter
             {
                 Direction = 0,
                 Spreading = 10,
@@ -31,21 +33,23 @@ namespace ParticleSystem
                 Y = picDisplay.Height / 2,
             };
 
-            emitters.Add(this.emitter);
-            // до сюда НЕ ТРОГАЕМ
+            emitters.Add(this.emitter);  // добавляем эмиттер в список эмиттеров
 
-            // привязываем гравитоны к полям
+            // Создаем гравитоны
             point1 = new GravityPoint
             {
                 X = picDisplay.Width / 2 + 100,
                 Y = picDisplay.Height / 2,
+                Power = 100  // начальный радиус
             };
 
-
-            // привязываем поля к эмиттеру
+            // Добавляем гравитон в список точек воздействия эмиттера
             emitter.impactPoints.Add(point1);
 
+            // Подключаем обработчик события колесика мыши
+            picDisplay.MouseWheel += picDisplay_MouseWheel;
         }
+
 
         // ну и обработка тика таймера, тут просто декомпозицию выполнили
         private void timer1_Tick(object sender, EventArgs e)
@@ -110,5 +114,117 @@ namespace ParticleSystem
 
             label6.Text = $"Жизнь частиц: {trackBar4.Value} сек";
         }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                AddColorPoints(); // Добавляем цветные точки
+            }
+            else
+            {
+                // Удаляем все цветные точки, если чекбокс выключен
+                foreach (var colorPoint in emitter.impactPoints.OfType<ColorPoint>().ToList())
+                {
+                    emitter.impactPoints.Remove(colorPoint);
+                }
+            }
+        }
+
+        private void AddColorPoints()
+        {
+            int centerY = picDisplay.Height / 2 + 50; // координата Y чуть ниже середины
+            int radius = 20; // радиус круга
+            int spacing = 50; // расстояние между кругами
+            Color[] colors = { Color.Red, Color.Green, Color.Blue, Color.Yellow, Color.Purple };
+
+            for (int i = 0; i < colors.Length; i++)
+            {
+                var colorPoint = new ColorPoint
+                {
+                    X = picDisplay.Width / 2 - (colors.Length / 2 * spacing) + i * spacing,
+                    Y = centerY,
+                    Radius = radius,
+                    Color = colors[i]
+                };
+                emitter.impactPoints.Add(colorPoint);
+            }
+
+            // Перерисовываем картинку
+            picDisplay.Invalidate();
+        }
+
+
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked)
+            {
+                AddRandomCounter();
+            }
+            else
+            {
+                // Удаляем все счетчики при выключении чекбокса
+                foreach (var counter in counters)
+                {
+                    emitter.impactPoints.Remove(counter);
+                }
+                counters.Clear();
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked)
+            {
+                AddRandomCounter();
+            }
+        }
+
+        // Метод для создания счетчика в случайной позиции
+        private void AddRandomCounter()
+        {
+            var random = new Random();
+            var counter = new ParticleCounterPoint
+            {
+                X = random.Next(0, picDisplay.Width),
+                Y = random.Next(0, picDisplay.Height)
+            };
+            counters.Add(counter);
+            emitter.impactPoints.Add(counter);
+        }
+
+        private void picDisplay_MouseWheel(object sender, MouseEventArgs e)
+        {
+            // Найдем гравитон (радар) среди точек воздействия
+            foreach (var point in emitter.impactPoints)
+            {
+                if (point is GravityPoint gravityPoint)
+                {
+                    // Меняем радиус в зависимости от направления прокрутки
+                    gravityPoint.Power += e.Delta > 0 ? 10 : -10;
+                    gravityPoint.Power = Math.Max(20, Math.Min(500, gravityPoint.Power));
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Random random = new Random(); // Генератор случайных чисел
+
+            // Перебираем все точки воздействия в списке
+            foreach (var point in emitter.impactPoints.OfType<ColorPoint>())
+            {
+                // Генерируем случайный цвет
+                var randomColor = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
+
+                // Присваиваем новый цвет точке
+                point.Color = randomColor;
+            }
+
+            // Перерисовываем картинку, чтобы изменения отобразились
+            picDisplay.Invalidate();
+        }
+
     }
 }

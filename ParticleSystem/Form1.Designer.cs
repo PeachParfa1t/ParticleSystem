@@ -44,6 +44,10 @@
             trackBar3 = new TrackBar();
             trackBar4 = new TrackBar();
             label6 = new Label();
+            checkBox1 = new CheckBox();
+            checkBox2 = new CheckBox();
+            button1 = new Button();
+            button2 = new Button();
             ((System.ComponentModel.ISupportInitialize)picDisplay).BeginInit();
             ((System.ComponentModel.ISupportInitialize)tbDirection).BeginInit();
             ((System.ComponentModel.ISupportInitialize)tbGraviton).BeginInit();
@@ -194,11 +198,57 @@
             label6.TabIndex = 14;
             label6.Text = "Продолжительность жизни: ";
             // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(25, 567);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(248, 24);
+            checkBox1.TabIndex = 15;
+            checkBox1.Text = "Точки перекрашивания частиц";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(296, 567);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(181, 24);
+            checkBox2.TabIndex = 16;
+            checkBox2.Text = "Точка-счетчик частиц";
+            checkBox2.UseVisualStyleBackColor = true;
+            checkBox2.CheckedChanged += checkBox2_CheckedChanged;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(334, 597);
+            button1.Name = "button1";
+            button1.Size = new Size(94, 29);
+            button1.TabIndex = 17;
+            button1.Text = "Добавить";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
+            // button2
+            // 
+            button2.Location = new Point(60, 597);
+            button2.Name = "button2";
+            button2.Size = new Size(166, 29);
+            button2.TabIndex = 18;
+            button2.Text = "Поменять цвет";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1160, 660);
+            Controls.Add(button2);
+            Controls.Add(button1);
+            Controls.Add(checkBox2);
+            Controls.Add(checkBox1);
             Controls.Add(label6);
             Controls.Add(trackBar4);
             Controls.Add(trackBar3);
@@ -243,5 +293,9 @@
         private TrackBar trackBar3;
         private TrackBar trackBar4;
         private Label label6;
+        private CheckBox checkBox1;
+        private CheckBox checkBox2;
+        private Button button1;
+        private Button button2;
     }
 }
