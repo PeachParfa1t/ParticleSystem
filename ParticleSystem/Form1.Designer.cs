@@ -59,9 +59,9 @@
             // 
             // picDisplay
             // 
-            picDisplay.Location = new Point(-10, -4);
+            picDisplay.Location = new Point(12, -4);
             picDisplay.Name = "picDisplay";
-            picDisplay.Size = new Size(1179, 435);
+            picDisplay.Size = new Size(1157, 435);
             picDisplay.TabIndex = 0;
             picDisplay.TabStop = false;
             picDisplay.MouseMove += picDisplay_MouseMove;
